@@ -49,6 +49,34 @@ def get_html(url, params=None):
 	r = requests.get(url, headers=HEADERS, params=params)
 	return r
 
+#сохранение страницы
+def save(name):
+	file_product = None
+	succesful = False
+	while 0<1:
+		z = 0
+		pyautogui.hotkey('ctrl', 's')
+		time.sleep(1)
+		pyautogui.typewrite(name)
+		pyautogui.press('enter')
+		while True:
+			pyautogui.moveTo(1250, 700)
+			time.sleep(5)
+			if z == 6:
+				break
+			try: 
+				file_product = urllib.request.urlopen(f"file:///{LOCATION}" + name)
+				print(f"file product: {file_product}")
+				succesful = True
+				break
+			except:
+				z += 1
+				continue
+		if succesful:
+			break
+	print(f"file product: {file_product}")
+	return file_product
+
 #функция сохранения в ексель
 def save_file(items, path):
     with open(path, 'w', newline='') as file:
@@ -66,6 +94,7 @@ def get_content():
 	#цыкл для парсинка страниц поиска
 	products = []
 	while x < z:
+		pyautogui.moveTo(1250, 700)
 		print(f"page №{x}")
 		time.sleep(5)
 		pyautogui.scroll(-800)
@@ -78,19 +107,11 @@ def get_content():
 		time.sleep(1)
 		pyautogui.scroll(-800)
 		time.sleep(1)
+		pyautogui.scroll(-800)
+		time.sleep(1)
 		#сохранение страницы браузера
-		pyautogui.hotkey('ctrl', 's')
-		time.sleep(3)
-		pyautogui.typewrite(f'Page{x}.html')
-		pyautogui.press('enter')
-		#ожидание скачивания файла
-		while 0<1:
-			time.sleep(5)
-			try: 
-				webUrl = urllib.request.urlopen(f"file:///{LOCATION}/Page{x}.html")
-				break
-			except:
-				continue
+		name = f'Page{x}.html'
+		webUrl = save(name)
 		#чтение кода сохраненной страницы
 		html = webUrl.read()
 		soup = BeautifulSoup(html, 'html.parser', from_encoding="utf-8")
@@ -109,6 +130,7 @@ def get_content():
 
 		#парсинг отдельных страниц продуктов
 		for item in items:
+			pyautogui.moveTo(1250, 700)
 			print(f"item №{y}")
 			solo = item.find('a', class_ = 'Link__StyledLink-sc-4b9qcv-0')
 			if solo != None: #проверка на не рекламный баннер
@@ -119,17 +141,8 @@ def get_content():
 					webbrowser.open(solo_link)
 					time.sleep(5)
 					#сохранение страницы продукта
-					pyautogui.hotkey('ctrl', 's')
-					time.sleep(1)
-					pyautogui.typewrite(f'Product{y}.html')
-					pyautogui.press('enter')
-					while 0<1:
-						time.sleep(5)
-						try: 
-							file_product = urllib.request.urlopen(f"file:///{LOCATION}/Product{y}.html")
-							break
-						except:
-							continue
+					name = f"Product{y}.html"
+					file_product = save(name)
 					#чтение кода страницы продукта
 					html_product = file_product.read()
 					soup_product = BeautifulSoup(html_product, 'html.parser', from_encoding="utf-8")
@@ -174,6 +187,7 @@ def get_content():
 				print("this is an advertisement")
 			y += 1
 		#конец цикла продуктов
+		pyautogui.moveTo(1250, 700)
 		pyautogui.hotkey('ctrl', 'w')
 		webbrowser.open(page)
 		x += 1
@@ -184,6 +198,7 @@ def btn_parse_click():
 	#проверка url
 	URL = btn_search_click()
 	html = get_html(URL)
+	pyautogui.moveTo(1250, 700)
 	if html.status_code == 200:
 		#парсинг
 		result = get_content()
